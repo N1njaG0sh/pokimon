@@ -1,7 +1,6 @@
 import telebot 
 from config import token
-
-from logic import Pokemon
+from logic import Pokemon, Wizard, Fighter
 
 bot = telebot.TeleBot(token) 
 
@@ -54,6 +53,32 @@ def restore_pokemon(message):
                         f"Стало: {pokemon.hp} HP |  {pokemon.power} силы")
     else: 
         bot.send_message(message.chat.id, "Сначала создай покемкомандой /go")
+
+
+@bot.message_handler(commands=['info'])
+def show_pokemon_info(message):
+    if message.from_user.username in Pokemon.pokemons.keys():
+        pok = Pokemon.pokemons[message.from_user.username]
+        
+        bot.send_message(message.chat.id, pok.info())
+        
+        if pok.show_img():
+            bot.send_photo(message.chat.id, pok.show_img())
+        else:
+            bot.send_message(message.chat.id, "🖼️ Изображение покемона временно недоступно")
+    else:
+        bot.send_message(message.chat.id, " У тебя нет покемона! Создай его командой /go")
+
+
+
+@bot.message_handler(commands=['feed'])
+def feed_pokemon(message):
+    if message.from_user.username in Pokemon.pokemons.keys():
+        pokemon = Pokemon.pokemons[message.from_user.username]
+        result = pokemon.feed()
+        bot.send_message(message.chat.id, result)
+    else:
+        bot.send_message(message.chat.id, "Сначала создай покемона командой /go")
 
 
 bot.infinity_polling(none_stop=True)
